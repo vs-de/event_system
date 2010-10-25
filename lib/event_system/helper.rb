@@ -15,11 +15,14 @@ module EventSystem
     #strictly fires the loader every nth second
     def strict_tag url, interval
       javascript_tag(
-        "function getNewEvents(url) {
-           url = url+#{UPDATE_URL_SUFFIX};
-           $.getScript(url);
+        "$(document).ready(function() {
+        	setInterval(function() {getNewEvents('#{url}');}, #{interval*1000});
+	});
+	function getNewEvents(url) {
+           	url = url+#{UPDATE_URL_SUFFIX};
+           	$.getScript(url);
          };
-         setInterval(function() {getNewEvents('#{url}');}, #{interval*1000});"
+	 "
         )
     end
     
@@ -29,12 +32,14 @@ module EventSystem
       javascript_tag(
         "var event_timer;
          var url = '#{url}';
-           function getNewEvents() {
-             $.getScript(url+#{UPDATE_URL_SUFFIX}, function() {
-               event_timer = setTimeout('getNewEvents()', #{interval*1000});
-             });
-           };
-           getNewEvents();
+	 function getNewEvents() {
+	   $.getScript(url+#{UPDATE_URL_SUFFIX}, function() {
+	     event_timer = setTimeout('getNewEvents()', #{interval*1000});
+	   });
+	 };
+	 $(document).ready(function() {
+	      getNewEvents();
+	 });
         "
       )
     end
